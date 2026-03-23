@@ -1,0 +1,73 @@
+<div class="container mt-2" *ngIf="isLoading">
+  <div class="text-center">
+    <div class="spinner-border text-dark" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-4" *ngIf="!isLoading && orderDetails">
+  <div class="card">
+    <div class="card-header text-white shadow-sm">
+      <h3>Temat: [{{ orderDetails.topic }}]</h3>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-8 d-flex flex-column border-end chat-container">
+          <div class="chat-area px-1 py-2">
+            <div *ngFor="let message of messages;" class="mb-2">
+              <div class="d-flex flex-column" [ngClass]="
+                   {'align-items-end' : message.senderId === loggedUserId,
+                    'align-items-start' : message.senderId !== loggedUserId,
+                   }">                
+                <small class="text-muted fs-6">
+                  {{ message.senderId !== loggedUserId ? orderDetails.contactFirstName : ''}}
+                </small>
+                <div class="p-2 mb-2 rounded-3 shadow-sm"
+                     [attr.title]="message.sentAt | date: 'HH:mm dd.MM'"
+                     [ngClass]="{
+                     'bg-primary text-white' : message.senderId === loggedUserId,
+                     'bg-light text-dark' : message.senderId !== loggedUserId
+                     }">
+                  {{ message.content }}
+                </div>
+              </div>        
+            </div>
+          </div>
+          <div class="p-2 border-top">
+            <div class="input-group">
+              <input type="text" class="form-control rounded-start" placeholder="Napisz wiadomość..." [(ngModel)]="message" (keyup.enter)="sendMessage()">
+              <input type="file" class="form-control attachments">
+              <button type="button" class="btn btn-dark rounded-end" (click)="sendMessage()">Wyślij</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4 information">
+          <h5>Informacje</h5>
+          <ul class="list-group">
+            <li class="list-group-item">
+              <strong>Rozmówca: </strong><span>{{ orderDetails.contactFirstName }} {{ orderDetails.contactLastName }}</span>
+            </li>
+            <li class="list-group-item">
+              <strong>E-mail:</strong>
+              {{ orderDetails.contactEmail}}
+            </li>
+            <li class="list-group-item">
+              <strong>Status:</strong>
+              {{ orderDetails.status !== null && orderDetails.status !== undefined ? OrderStatusNames[orderDetails.status!] : '' }}
+            </li>
+            <li class="list-group-item">
+              <strong>Kategoria:</strong>
+              {{ orderDetails.category !== null && orderDetails.category !== undefined ? OrderCategoryNames[orderDetails.category!] : '' }}
+            </li>
+            <li class="list-group-item">
+              <strong>Priorytet:</strong>
+              {{ orderDetails.priority !== null && orderDetails.priority !== undefined ? OrderPriorityNames[orderDetails.priority!] : '' }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

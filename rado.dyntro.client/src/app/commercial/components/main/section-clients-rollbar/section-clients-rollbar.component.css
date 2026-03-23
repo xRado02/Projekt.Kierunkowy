@@ -1,0 +1,35 @@
+.logos-slide {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+}
+
+.logos-track {
+  display: flex;
+  gap: 30px;
+  animation: scrollLogos 20s linear infinite;
+}
+
+.logo-item {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+  .logo-item img {
+    max-width: 100%;
+    height: auto;
+  }
+
+@keyframes scrollLogos {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}

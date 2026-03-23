@@ -1,0 +1,25 @@
+<section>
+  <div class="container d-flex justify-content-center align-items-center">
+    <div class="register-card card shadow p-4">
+      <div class="d-flex align-items-center text-center mb-3">
+        <img src="content/images/svg/smallLogo.svg" width="42" height="42" />
+        <h2 class="text-center mb-0 mx-4">Zarejestruj</h2>
+      </div>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-floating mb-3">
+          <input type="password" id="password" class="form-control" placeholder="Hasło" formControlName="password" />
+          <label for="password">Hasło</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm Password" formControlName="confirmPassword" />
+          <label for="confirmPassword">Powtórz hasło</label>
+        </div>
+        <button type="submit" class="btn btn-dark w-100">
+          Zarejestruj
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+

@@ -1,0 +1,7 @@
+@Rado.Dyntro.Server_HostAddress = http://localhost:5239
+
+GET {{Rado.Dyntro.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+ 

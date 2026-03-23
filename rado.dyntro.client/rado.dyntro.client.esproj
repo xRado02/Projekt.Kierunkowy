@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1738743">
+  <PropertyGroup>
+    <StartupCommand>npm start</StartupCommand>
+    <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
+    <!-- Allows the build (or compile) script located on package.json to run on Build -->
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
+    <!-- Folder where production build objects will be placed -->
+    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\rado.dyntro.client\browser\</BuildOutputFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\app\activation\content\images\avif\" />
+    <Folder Include="src\app\activation\services\" />
+    <Folder Include="src\app\commercial\components\main\content\images\avif\" />
+    <Folder Include="src\app\core\services\" />
+    <Folder Include="src\app\dashboard\components\header\content\images\" />
+    <Folder Include="src\app\dashboard\components\main\content\NewFolder\" />
+    <Folder Include="src\app\reset-password\content\images\avif\" />
+    <Folder Include="src\app\reset-password\models\" />
+    <Folder Include="src\app\reset-password\modules\" />
+    <Folder Include="src\app\reset-password\services\" />
+  </ItemGroup>
+</Project>

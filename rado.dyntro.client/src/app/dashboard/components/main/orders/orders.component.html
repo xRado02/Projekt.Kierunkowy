@@ -1,0 +1,136 @@
+<div class="container-fluid mt-4 px-5">
+  <div class="d-flex justify-content-end pb-3">
+    <button class="btn btn-outline-dark mx-2" data-bs-toggle="modal" data-bs-target="#addOrderModal">Dodaj zlecenie</button>
+    <button class="btn btn-outline-dark me-2" (click)="deleteOrders()" [disabled]="selectedOrdersIds.length === 0">Usuń zlecenie</button>
+  </div>
+</div>
+<app-orders-filter (selectedParams)="onFiltersChange($event)"></app-orders-filter>
+<div class="container-fluid mt-4 px-5">
+  <div class="table-responsive">
+    <table *ngIf="orders" class="table table-hover fs-5">
+      <thead class="table-border">
+        <tr>
+          <th class="text-start">
+            <input type="checkbox"
+                   class="form-check-input bg-secondary border-dark shadow-none"
+                   id="selectAll"
+                   [ngModel]="selectAllCheckbox"
+                   (ngModelChange)="toogleSelectionAll()"
+                   [checked]="selectAllCheckbox">
+          </th>          
+          <th class="text-start">Status</th>
+          <th class="text-start px-5">Temat</th>
+          <th class="text-start px-5">Imię</th>
+          <th class="text-start px-5">Nazwisko</th>
+          <th class="text-start px-5">Kategoria</th>
+          <th class="text-start px-5">Priorytet</th>
+          <th class="text-start ps-5">Data aktualizacji</th>
+        </tr>
+      </thead>
+      <tbody *ngIf="!isLoading">
+        <tr *ngFor="let order of filteredOrders;" (click)="order.id && goToOrderDetails(order.id)" >
+          <td>
+            <input type="checkbox"
+                   class="form-check-input bg-secondary border-dark shadow-none"
+                   [checked]="order.id != null && isSelected(order.id)"
+                   (change)="toggleSelection(order.id!, getCheckboxChecked($event))"
+                   (click)="$event.stopPropagation()"/>
+          </td>
+          <td>{{ order.status != null ? OrderStatusNames[order.status] : 'Nieznany' }}</td>
+          <td class="text-start px-5">{{order.topic}}</td>
+          <td class="text-start px-5">{{order.firstName}}</td>
+          <td class="text-start px-5">{{order.lastName}}</td>
+          <td class="text-start px-5">{{ order.category !== null && order.category !== undefined ? OrderCategoryNames[order.category] : 'Nieznana' }}</td>
+          <td class="text-start px-5">{{ order.priority !== null && order.priority !== undefined ? OrderPriorityNames[order.priority] : 'Nieznany' }}</td>
+          <td class="text-start ps-5">{{ order.date | date:'dd-MM-yyyy' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<section class="pagination-section">
+  <div class="d-flex justify-content-end mt-0 mx-5">
+    <nav aria-label="Paginacja zleceń">
+      <ul class="pagination">    
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link text-dark" (click)="onPageChange(currentPage - 1)">Poprzednia</a>
+        </li>       
+        <li *ngFor="let page of [].constructor(totalPages); let i = index"
+            class="page-item "
+            [class.active]="currentPage === (i + 1)">
+          <a class="page-link bg-white text-dark" (click)="onPageChange(i + 1)">{{ i + 1 }}</a>
+        </li>        
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <a class="page-link text-dark" (click)="onPageChange(currentPage + 1)">Następna</a>
+        </li>
+
+      </ul>
+    </nav>
+  </div>
+</section>
+
+<div class="container mt-5" *ngIf="isLoading">
+  <div class="text-center">
+    <div class="spinner-border text-dark" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addOrderModalCenter">Dodaj zlecenie</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="newOrder">
+          <div class="mb-3">
+            <label for="firstName" class="form-label">Imię</label>
+            <input type="text" class="form-control" formControlName="firstName">
+          </div>
+          <div class="mb-3">
+            <label for="lastName" class="form-label">Nazwisko</label>
+            <input type="text" class="form-control" formControlName="lastName" />
+          </div>
+          <div class="mb-3">
+            <label for="topic" class="form-label">Temat</label>
+            <input type="text" class="form-control" formControlName="topic" />
+          </div>       
+          <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" formControlName="status">
+              <option *ngFor="let status of [Status.InProgress, Status.Completed, Status.Canceled]" [value]="status">
+                {{ OrderStatusNames[status] }}
+              </option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="category" class="form-label">Kategoria</label>
+            <select class="form-select" formControlName="category">
+              <option *ngFor="let category of [Category.LinkedinAutomatization, Category.EmailCampaing, Category.Other]" [value]="category">
+                {{ OrderCategoryNames[category] }}
+              </option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="priority" class="form-label">Priorytet</label>
+            <select class="form-select" formControlName="priority">
+              <option *ngFor="let priority of [Priority.Low, Priority.Medium, Priority.High]" [value]="priority">
+                {{ OrderPriorityNames[priority] }}
+              </option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal" (click)="createNewOrder()">Zapisz</button>
+        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Zamknij</button>
+      </div>
+    </div>
+  </div>
+</div>
+

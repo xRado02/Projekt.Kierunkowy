@@ -1,0 +1,54 @@
+<div class="container-fluid px-5">
+  <div class="d-flex gap-2 align-items-end">
+    <div class="input-group">
+      <span class="input-group-text bg-white" id="search-icon">
+        <img src="content/images/svg/search.svg" width="20" height="20" />
+      </span>
+      <input type="text" class="form-control" placeholder="Wyszukaj użytkownika" aria-describedby="search-icon" #searchByUser  />
+    </div>
+    <div class="flex-grow-1 d-flex flex-column">
+      <label class="form-label">Status</label>
+      <select class="form-select"  #searchStatus>
+        <option value="">Domyślnie</option>
+        <option *ngFor="let status of orderStatuses" [value]="status">
+          {{ status }}
+        </option>
+      </select>
+    </div>
+    <div class="flex-grow-1 d-flex flex-column">
+      <label class="form-label">Kategoria</label>
+      <select class="form-select" #searchCategory>
+        <option value="">Domyślne</option>
+        <option *ngFor="let category of orderCategories" [value]="category">
+          {{ category }}
+        </option>
+      </select>
+    </div>
+    <div class="flex-grow-1 d-flex flex-column">
+      <label class="form-label">Priorytet</label>
+      <select class="form-select" #searchPriority>
+        <option value="">Domyślnie</option>
+        <option *ngFor="let priority of orderPriorities" [value]="priority">
+          {{ priority }}
+        </option>
+      </select>
+    </div>
+    <div class="flex-grow-1 d-flex flex-column">
+      <label class="form-label">Sortuj według</label>
+      <select name="sort-by-element" class="form-select" #sortByElement>
+        <!--<option>ID</option>-->
+        <option>Data</option>
+      </select>
+    </div>
+    <div class="flex-grow-1 d-flex flex-column">
+      <label class="form-label">Kierunek sortowania</label>
+      <select name="sort-by-direction" class="form-select" #sortByDirection>
+        <option>Malejąco</option>
+        <option>Rosnąco</option>
+      </select>
+    </div>
+    <div class="align-self-end">
+      <button class="btn btn-outline-dark" (click)="onSelectedParams()">Zastosuj</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+.register-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+.container {
+  height: calc(100vh - 113px);
+}
+
+
+.form-select:focus, .form-control:focus {
+  border-color: #000f;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}

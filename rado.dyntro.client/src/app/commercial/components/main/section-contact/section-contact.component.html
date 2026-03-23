@@ -1,0 +1,44 @@
+<section class="py-5">
+  <div class="container">
+    <h1 class="text-center">Formularz kontaktowy</h1>
+    <div class="mt-5">
+      <form novalidate>
+        <div class="form-floating ">
+          <input type="text" id="name" class="form-control fs-4 mb-3" placeholder="Imię" required />
+          <label for="name" class="form-label fs-5">Imię</label>
+        </div>
+        <div class="form-floating ">
+          <input type="text" id="lastName" class="form-control fs-4 mb-3" placeholder="Nazwisko (opcjonalnie)" />
+          <label for="lastName" class="form-label fs-5">Nazwisko (opcjonalnie)</label>
+        </div>
+        <div class="form-floating ">
+          <input type="text" id="establishment" class="form-control fs-4 mb-3" placeholder="Nazwa firmy" required />
+          <label for="establishment" class="form-label fs-5">Nazwa firmy</label>
+        </div>
+        <div class="form-floating ">
+          <input type="text" id="nipNumber" class="form-control fs-4 mb-3" placeholder="NIP" required />
+          <label for="nipNumber" class="form-label fs-5">NIP</label>
+        </div>
+        <div class="form-floating ">
+          <input type="email" id="e-mail" class="form-control fs-4 mb-3" placeholder="E-mail" required />
+          <label for="email" class="form-label fs-5">E-mail</label>
+        </div>
+        <div class="form-floating">
+          <input type="tel" id="telNumber" class="form-control fs-4 mb-3" placeholder="Telefon " />
+          <label for="tel" class="form-label fs-5">Telefon (opcjonalnie)</label>
+        </div>
+        <div class="form-floating fs-5">
+          <textarea id="message" class="form-control fs-4 mb-3" placeholder="Wiadomość"></textarea>
+          <label for="message" class="form-label">Wiadomość</label>
+        </div>
+        <div class="mb-3">
+          <input type="checkbox" id="politicy" class="form-check-input customCheckbox me-2 bg-secondary border-dark shadow-none" required/>
+          <label for="politicy" class="form-check-label">Akceptuję polityę prywatności</label>
+        </div>
+        <div>          
+          <button type="submit" class="btn btn-outline-dark" (click)="validForm()"><strong>Wyślij wiadomość</strong></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

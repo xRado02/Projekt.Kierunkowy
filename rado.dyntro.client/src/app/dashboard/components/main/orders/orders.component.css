@@ -1,0 +1,13 @@
+
+.pagination .page-item.active .page-link {
+  border-color: black;
+}
+
+.form-select:focus, .form-control:focus {
+  border-color: #000f;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+tr{
+    cursor: pointer;
+}

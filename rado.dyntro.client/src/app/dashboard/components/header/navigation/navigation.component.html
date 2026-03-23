@@ -1,0 +1,31 @@
+<nav class="navbar navbar-expand-lg bg-light shadow-sm py-3  ">
+  <div class="container-fluid px-5">
+    <a routerLink="/dashboard/main" class="navbar-brand">
+      <img src="../content/images/png/logo-black.png" alt="Logo" loading="lazy" class="mb-0 mt-0" height="35" />
+    </a>
+    <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Przełącz nawigacje">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="menu" class="collapse navbar-collapse ">
+      <ul class="navbar-nav ms-auto text-uppercase fs-6  ">
+        <li class="nav-item  py-1">
+          <a routerLink="/dashboard/main" class="nav-link ">Zlecenia</a>
+        </li>
+        <li class="nav-item dropdown  py-1 " *ngIf="isAdmin">
+          <a routerLink="/dashboard/admin-panel" class="nav-link ">Admin</a>
+        </li>
+        <li class="nav-item  py-1">
+          <button (click)="logout()" class="btn btn-link text-danger  text-decoration: none; text-uppercase">Wyloguj</button>
+        </li>
+        <li class="nav-item  py-0">
+          <a routerLink="/dashboard/account" class="nav-link"><img src="../content/images/svg/person-fill.svg" alt="Proile" width="24" height="24" /></a>
+        </li>
+        <li class="nav-item  py-0">
+          <a  class="nav-link"><img src="../content/images/svg/envelope.svg" alt="Proile" width="24" height="24" /></a>
+        </li>       
+      </ul>
+    </div>
+  </div>
+</nav>
+

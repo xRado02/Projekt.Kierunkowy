@@ -1,0 +1,21 @@
+select{
+    width:200px;
+}
+
+
+.btn{
+    width:130px
+}
+
+.form-control:focus {
+  border-color: #000f;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.form-select:focus, .form-control:focus {
+
+  border-color: #000f;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+
+}
+

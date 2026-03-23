@@ -1,0 +1,35 @@
+<section class="register-bg">
+  <div class="container d-flex justify-content-center align-items-center">
+    <div class="login-card card shadow px-4 py-3">
+      <div class="d-flex align-items-center mb-3">
+        <img src="content/images/svg/smallLogo.svg" width="42" height="42" />
+        <h2 class="text-center mb-0 mx-4">Logowanie</h2>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-floating mb-3">
+          <input type="text" id="email" class="form-control" [class.is-invalid]="loginError || (loginForm.invalid && formSubmitted)" placeholder="Email" formControlName="email" />
+          <label for="email">Email</label>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input type="password" id="password" class="form-control" [class.is-invalid]="loginError || (loginForm.invalid && formSubmitted)" placeholder="Hasło" formControlName="password" />
+          <label for="password">Hasło</label>
+        </div>
+
+
+        <div *ngIf="loginError || (loginForm.invalid && formSubmitted)" class="alert alert-danger">
+          Niepoprawny email lub hasło.
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100" [disabled]="isLoading">
+          Zaloguj się
+        </button>
+        <div class="mt-3">
+          <p><a routerLink="/commercial/send-reset-email">Zapomniałeś hasła?</a></p>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</section>
