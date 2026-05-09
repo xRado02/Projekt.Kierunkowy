@@ -11,7 +11,7 @@ namespace Rado.Dyntro.Server.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class UserController: ControllerBase
     {
         private readonly AppDbContext _appDbContext;
@@ -32,7 +32,15 @@ namespace Rado.Dyntro.Server.Controllers
             {
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
                 var loggedUserId = Guid.Parse(userIdClaim!.Value);
-                var users = _appDbContext.Users.Where(u => u.Id != loggedUserId).OrderByDescending(o => o.Id).ToList();
+
+                IQueryable<Data.Entities.User> query = _appDbContext.Users;
+
+                // Filtruj - zawsze wyklucz zalogowanego użytkownika
+                query = query.Where(u => u.Id != loggedUserId)
+                    .Distinct()  // DODAJ DISTINCT
+                    .OrderByDescending(o => o.Id);
+
+                var users = query.ToList();
                 var result = _mapper.Map<List<UserViewModel>>(users);                
                 return Ok(result);
             }
@@ -46,19 +54,35 @@ namespace Rado.Dyntro.Server.Controllers
         [HttpGet("userFilterBy")]
         public ActionResult<List<UserViewModel>> Get([FromQuery] UserQueryParams queryParams)
         {
-            var query = _appDbContext.Users.AsQueryable();
-            if (!string.IsNullOrEmpty(queryParams.searchByUser))
+            try
             {
-                query = query.Where(u => u.FirstName.StartsWith(queryParams.searchByUser) || u.LastName.StartsWith(queryParams.searchByUser));
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                var loggedUserId = Guid.Parse(userIdClaim!.Value);
+
+                var query = _appDbContext.Users.AsQueryable();
+           
+              
+                query = query.Where(u => u.Id != loggedUserId)
+                    .Distinct();  
+
+                if (!string.IsNullOrEmpty(queryParams.searchByUser))
+                {
+                    query = query.Where(u => u.FirstName.StartsWith(queryParams.searchByUser) || u.LastName.StartsWith(queryParams.searchByUser));
+                }
+                
+                var users = query.ToList();
+                var result = _mapper.Map<List<UserViewModel>>(users);
+                return Ok(result);
             }
-            var users = query.ToList();
-            var result = _mapper.Map<List<UserViewModel>>(users);
-            return Ok(result);
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Błąd: {ex.Message}");
+                return StatusCode(500, "Wystąpił błąd serwera");
+            }
         }
 
-        
         [HttpPost]
-
+        [Authorize(Roles = "Admin")]
         public ActionResult Post([FromBody] UserViewModel model)
         {
             var user = _mapper.Map<Data.Entities.User>(model);       
@@ -71,6 +95,7 @@ namespace Rado.Dyntro.Server.Controllers
         }
 
         [HttpDelete("delete-multiple")]
+        [Authorize(Roles = "Admin")]
         public ActionResult DeleteMultiple([FromBody] List<Guid> ids)
         {       
             var usersToDelete = _appDbContext.Users.Where(u => ids.Contains(u.Id)).ToList();
@@ -82,8 +107,5 @@ namespace Rado.Dyntro.Server.Controllers
             _appDbContext.SaveChanges();
             return NoContent();
         }
-
-
-
     }
 }

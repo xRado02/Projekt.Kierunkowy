@@ -35,7 +35,7 @@ namespace Rado.Dyntro.Server.Controllers
             }
 
 
-            var activationLink = $"https://dyntro.com.pl/activation?id={existingUser.Id}&email={existingUser.Email}";
+            var activationLink = $"https://localhost:58580/activation?id={existingUser.Id}&email={existingUser.Email}";
             var body = $"Kliknij w link, aby ustawić hasło: {activationLink}";
             await _emailService.SendEmail(existingUser.Email, body );
 
@@ -68,7 +68,7 @@ namespace Rado.Dyntro.Server.Controllers
 
             await _appDbContext.SaveChangesAsync();
 
-            var resetLink = $"https://dyntro.com.pl/reset-password?token={token}";
+            var resetLink = $"https://localhost:58580/reset-password?token={token}";
             var body = $"Kliknij w link, aby zresetować hasło: {resetLink}";
             await _emailService.SendEmail(model.Email, body);
 

@@ -11,5 +11,5 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AppComponent { 
   
-  title = 'rado.dyntro.client';
+  title = 'rado.projekt.client';
 }

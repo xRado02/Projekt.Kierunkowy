@@ -17,7 +17,7 @@
                    [ngModel]="selectAllCheckbox"
                    (ngModelChange)="toogleSelectionAll()"
                    [checked]="selectAllCheckbox">
-          </th>          
+          </th>
           <th class="text-start">Status</th>
           <th class="text-start px-5">Temat</th>
           <th class="text-start px-5">Imię</th>
@@ -28,13 +28,13 @@
         </tr>
       </thead>
       <tbody *ngIf="!isLoading">
-        <tr *ngFor="let order of filteredOrders;" (click)="order.id && goToOrderDetails(order.id)" >
+        <tr *ngFor="let order of filteredOrders;" (click)="order.id && goToOrderDetails(order.id)">
           <td>
             <input type="checkbox"
                    class="form-check-input bg-secondary border-dark shadow-none"
                    [checked]="order.id != null && isSelected(order.id)"
                    (change)="toggleSelection(order.id!, getCheckboxChecked($event))"
-                   (click)="$event.stopPropagation()"/>
+                   (click)="$event.stopPropagation()" />
           </td>
           <td>{{ order.status != null ? OrderStatusNames[order.status] : 'Nieznany' }}</td>
           <td class="text-start px-5">{{order.topic}}</td>
@@ -51,15 +51,15 @@
 <section class="pagination-section">
   <div class="d-flex justify-content-end mt-0 mx-5">
     <nav aria-label="Paginacja zleceń">
-      <ul class="pagination">    
+      <ul class="pagination">
         <li class="page-item" [class.disabled]="currentPage === 1">
           <a class="page-link text-dark" (click)="onPageChange(currentPage - 1)">Poprzednia</a>
-        </li>       
+        </li>
         <li *ngFor="let page of [].constructor(totalPages); let i = index"
             class="page-item "
             [class.active]="currentPage === (i + 1)">
           <a class="page-link bg-white text-dark" (click)="onPageChange(i + 1)">{{ i + 1 }}</a>
-        </li>        
+        </li>
         <li class="page-item" [class.disabled]="currentPage === totalPages">
           <a class="page-link text-dark" (click)="onPageChange(currentPage + 1)">Następna</a>
         </li>
@@ -88,18 +88,49 @@
       </div>
       <div class="modal-body">
         <form [formGroup]="newOrder">
-          <div class="mb-3">
-            <label for="firstName" class="form-label">Imię</label>
-            <input type="text" class="form-control" formControlName="firstName">
+          <div class="mb-3 position-relative">
+            <label for="userId" class="form-label">Użytkownik</label>
+            <div class="input-group">
+              <input type="text"
+                     class="form-control"
+                     formControlName="userId"
+                     placeholder="Wyszukaj użytkownika..."
+                     (focus)="onUserInputFocus()"
+                     (blur)="onUserInputBlur()"
+                     [value]="selectedUser ? getUserDisplayName(selectedUser) : ''">
+              <button class="btn btn-outline-secondary"
+                      type="button"
+                      *ngIf="selectedUser"
+                      (click)="clearUserSelection()">
+                ✕
+              </button>
+            </div>
+            <!-- Autocomplete Dropdown -->
+            <div class="dropdown-menu w-100 show"
+                 *ngIf="showUserDropdown && (filteredUsers$ | async) as users"
+                 [class.show]="showUserDropdown"
+                 style="position: absolute; top: 100%; z-index: 1000;">
+              <div *ngIf="users.length > 0; else noUsers">
+                <button type="button"
+                        class="dropdown-item"
+                        *ngFor="let user of users"
+                        (click)="onUserSelected(user)">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-500">{{ getUserDisplayName(user) }}</span>
+                    <small class="text-muted">{{ user.email }}</small>
+                  </div>
+                </button>
+              </div>
+              <ng-template #noUsers>
+                <div class="dropdown-item disabled">Brak wyników</div>
+              </ng-template>
+            </div>
           </div>
-          <div class="mb-3">
-            <label for="lastName" class="form-label">Nazwisko</label>
-            <input type="text" class="form-control" formControlName="lastName" />
-          </div>
+
           <div class="mb-3">
             <label for="topic" class="form-label">Temat</label>
             <input type="text" class="form-control" formControlName="topic" />
-          </div>       
+          </div>
           <div class="mb-3">
             <label for="status" class="form-label">Status</label>
             <select class="form-select" formControlName="status">
@@ -111,7 +142,7 @@
           <div class="mb-3">
             <label for="category" class="form-label">Kategoria</label>
             <select class="form-select" formControlName="category">
-              <option *ngFor="let category of [Category.LinkedinAutomatization, Category.EmailCampaing, Category.Other]" [value]="category">
+              <option *ngFor="let category of [Category.Software, Category.Hardware, Category.Other]" [value]="category">
                 {{ OrderCategoryNames[category] }}
               </option>
             </select>
@@ -127,10 +158,9 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal" (click)="createNewOrder()">Zapisz</button>
+        <button type="button" class="btn btn-outline-dark" (click)="createNewOrder()" [disabled]="!selectedUser">Zapisz</button>
         <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Zamknij</button>
       </div>
     </div>
   </div>
 </div>
-

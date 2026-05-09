@@ -8,6 +8,9 @@ import { OrderStatus, OrderPriority, OrderCategory } from '../../../Enums/OrderE
 import { Router } from '@angular/router';
 import { User } from '../../../models/user/user-model';
 import { UserService } from '../../../Services/user.service';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import { AuthUserService } from '../../../../core/services/auth-user.service'
 
 @Component({
   selector: 'app-orders',
@@ -17,7 +20,6 @@ import { UserService } from '../../../Services/user.service';
 })
 export class OrdersComponent implements OnInit {
 
- 
   public orders: Order[] = [];
   public filteredOrders: Order[] = [];
   currentFilter: OrderFilter = {};
@@ -36,33 +38,145 @@ export class OrdersComponent implements OnInit {
   public Priority = OrderPriority;
 
   newOrder = new FormGroup({
-    firstName: new FormControl('', Validators.required),
-    lastName: new FormControl('', Validators.required),
     topic: new FormControl('', Validators.required),
-    status: new FormControl(OrderStatus.Canceled, Validators.required),
-    category: new FormControl(OrderCategory.EmailCampaing, Validators.required),
+    status: new FormControl(OrderStatus.InProgress, Validators.required),
+    category: new FormControl(OrderCategory.Hardware, Validators.required),
     priority: new FormControl(OrderPriority.Medium, Validators.required),
-    receiverId: new FormControl(null, Validators.required),
+    userId: new FormControl('', Validators.required)
   });
 
   orderStatuses = Object.values(OrderStatusNames);
   orderCategories = Object.values(OrderCategoryNames);
   orderPriorities = Object.values(OrderPriorityNames);
 
+  filteredUsers$: Observable<User[]> = new Observable();
+  allUsers: User[] = [];
+  selectedUser: User | null = null;
+  showUserDropdown: boolean = false;
+  loggedUserId: string | null = null;
+
   totalPages: number = 0;
   currentPage: number = 1;
-  constructor(private orderService: OrderService, private router: Router, private userService: UserService) { }
+
+  constructor(
+    private orderService: OrderService,
+    private router: Router,
+    private userService: UserService,
+    private authUserService: AuthUserService
+  ) { }
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.loadOrdersByPage(1);
+    this.loggedUserId = this.authUserService.getUserId();
     
+    // Upewnij się że loggedUserId jest dostępny zanim wczytasz użytkowników
+    if (this.loggedUserId) {
+      this.loadUsers();
+    } else {
+      console.error('Nie udało się pobrać ID zalogowanego użytkownika');
+    }
+    
+    this.loadOrdersByPage(1);
+    this.setupUserAutocomplete();
   }
 
+  private loadUsers(): void {
+    this.userService.getUsers().subscribe({
+      next: (users) => {
+        console.log('===== DEBUG USER LIST =====');
+        console.log('Całkowita liczba pobranych użytkowników:', users.length);
+        console.log('Wszyscy użytkownicy z backendu:', users);
 
+        // Normalizuj ID - usuń spacje i zamień na lowercase
+        const normalizedLoggedId = this.loggedUserId?.toLowerCase().trim();
+        console.log('Zalogowany user ID (normalized):', normalizedLoggedId);
+
+        // Dodatkowy filter aby upewnić się, że nie ma zalogowanego użytkownika
+        this.allUsers = users.filter(u => {
+          const normalizedUserId = u.id?.toLowerCase().trim();
+          const isCurrentUser = normalizedUserId === normalizedLoggedId;
+
+          if (!isCurrentUser) {
+            console.log(`✓ Dodany: ${u.firstName} ${u.lastName} (${u.id})`);
+          } else {
+            console.log(`✗ Odfiltrowany (to Ty): ${u.firstName} ${u.lastName} (${u.id})`);
+          }
+
+          return !isCurrentUser;
+        });
+
+        console.log('Użytkownicy po filtrowaniu:', this.allUsers.length);
+        console.log('=====================================');
+      },
+      error: (error) => {
+        console.error('Błąd pobierania użytkowników:', error);
+      }
+    });
+  }
+
+  private setupUserAutocomplete(): void {
+    const userControl = this.newOrder.get('userId');
+    if (userControl) {
+      this.filteredUsers$ = userControl.valueChanges.pipe(
+        startWith(''),
+        map(value => this.filterUsers(value ?? ''))
+      );
+    }
+  }
+
+  private filterUsers(searchValue: string): User[] {
+    if (!searchValue.trim()) {
+      return this.allUsers;
+    }
+
+    const searchLower = searchValue.toLowerCase().trim();
+    return this.allUsers.filter(user => {
+      const firstName = user.firstName ?? '';
+      const lastName = user.lastName ?? '';
+      const fullName = `${firstName} ${lastName}`;
+
+      return (
+        firstName.toLowerCase().includes(searchLower) ||
+        lastName.toLowerCase().includes(searchLower) ||
+        fullName.toLowerCase().includes(searchLower)
+      );
+    });
+  }
+
+  getUserDisplayName(user: User): string {
+    const firstName = user.firstName ?? '';
+    const lastName = user.lastName ?? '';
+    return `${firstName} ${lastName}`.trim();
+  }
+
+  onUserSelected(user: User): void {
+    this.selectedUser = user;
+    this.newOrder.patchValue({
+      userId: user.id ?? ''
+    });
+    this.showUserDropdown = false;
+  }
+
+  clearUserSelection(): void {
+    this.selectedUser = null;
+    this.newOrder.patchValue({
+      userId: ''
+    });
+    this.showUserDropdown = false;
+  }
+
+  onUserInputFocus(): void {
+    this.showUserDropdown = true;
+  }
+
+  onUserInputBlur(): void {
+    setTimeout(() => {
+      this.showUserDropdown = false;
+    }, 200);
+  }
 
   onFiltersChange(event: string[]): void {
-    const [status, category, priority, user, sortByElement, sortByDirection] = event;    
+    const [status, category, priority, user, sortByElement, sortByDirection] = event;
 
     const filter: OrderFilter = {
       status,
@@ -78,28 +192,28 @@ export class OrdersComponent implements OnInit {
     this.loadOrdersByPage(this.currentPage, this.currentFilter);
   }
 
-
-
   createNewOrder(): void {
-    if (this.newOrder.valid) {
+    if (this.newOrder.valid && this.selectedUser) {
       const createdOrder: Partial<Order> = {
-        firstName: this.newOrder.value.firstName,
-        lastName: this.newOrder.value.lastName,
-        topic: this.newOrder.value.topic,
+        firstName: this.selectedUser.firstName ?? '',
+        lastName: this.selectedUser.lastName ?? '',
+        topic: this.newOrder.value.topic ?? '',
         status: Number(this.newOrder.value.status),
         category: Number(this.newOrder.value.category),
         priority: Number(this.newOrder.value.priority),
-        receiverId: this.newOrder.value.receiverId,
+        receiverId: this.selectedUser.id ?? ''
       };
       this.orderService.addNewOrder(createdOrder).subscribe({
         next: (response) => {
           this.newOrder.reset();
+          this.selectedUser = null;
           this.loadOrdersByPage(this.currentPage);
-          this.isLoading = false; 
+          this.isLoading = false;
         },
         error: (error) => {
           console.log(error);
         }
+
       })
     }
   }
@@ -110,11 +224,11 @@ export class OrdersComponent implements OnInit {
         this.selectedOrdersIds = [];
         this.selectAllCheckbox = false;
         this.loadOrdersByPage(this.currentPage);
-        this.isLoading = false; 
+        this.isLoading = false;
       },
       error: (error) => {
         console.error(error);
-        this.isLoading = false; 
+        this.isLoading = false;
       }
     })
   }
@@ -156,14 +270,14 @@ export class OrdersComponent implements OnInit {
   loadOrdersByPage(page: number, filter?: OrderFilter): void {
     this.orderService.loadOrdersByParams(filter ?? this.currentFilter, page).subscribe({
       next: (response) => {
-        this.filteredOrders = response.items; 
+        this.filteredOrders = response.items;
         this.totalPages = response.totalPages;
         this.currentPage = response.currentPage;
-        this.isLoading = false; 
+        this.isLoading = false;
       },
       error: (error) => {
         console.error(error);
-        this.isLoading = false; 
+        this.isLoading = false;
       }
     });
   }
@@ -178,6 +292,3 @@ export class OrdersComponent implements OnInit {
   }
 
 }
-
-
-

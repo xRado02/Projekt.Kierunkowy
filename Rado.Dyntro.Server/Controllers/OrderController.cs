@@ -151,18 +151,18 @@ namespace Rado.Dyntro.Server.Controllers
         {
             var userId = GetCurrentUserId();
 
+            // Sprawdź czy ReceiverId został podany i czy użytkownik istnieje
+            if (model.ReceiverId == Guid.Empty)
+                return BadRequest("ReceiverId nie może być pusty.");
+
+            var receiver = _appDbContext.Users.FirstOrDefault(u => u.Id == model.ReceiverId);
+            if (receiver == null)
+                return BadRequest("Nie znaleziono użytkownika o podanym ID.");
+
             var order = _mapper.Map<Order>(model);
             order.Date = DateTime.Now;
             order.UserId = userId;
-
-            if (model.ReceiverId != Guid.Empty)
-            {
-                var receiver = _appDbContext.Users.FirstOrDefault(u => u.Id == model.ReceiverId);
-                if (receiver == null)
-                    return BadRequest("Nie znaleziono użytkownika o podanym ID.");
-
-                
-            }
+            order.ReceiverId = model.ReceiverId;
 
             _appDbContext.Orders.Add(order);
             _appDbContext.SaveChanges();
@@ -170,21 +170,35 @@ namespace Rado.Dyntro.Server.Controllers
             return Created("api/order/" + order.Id, null);
         }
 
-        [HttpDelete("delete")]
-        public ActionResult Delete([FromBody] List<Guid> ids)
+             [HttpDelete("delete")]
+        public ActionResult Delete([FromBody] List<string> ids)
         {
-            var userId = GetCurrentUserId();
-            var ordersToDelete = _appDbContext.Orders.Where(o => ids.Contains(o.Id) && o.UserId == userId).ToList();
+            try
+            {
+                var userId = GetCurrentUserId();
+           
+                var guidIds = ids.Select(id => 
+                {
+                    if (Guid.TryParse(id, out var guid))
+                        return guid;
+                    throw new ArgumentException($"Nieprawidłowy format ID: {id}");
+                }).ToList();
 
-            _appDbContext.Orders.RemoveRange(ordersToDelete);
-            _appDbContext.SaveChanges();
+                var ordersToDelete = _appDbContext.Orders
+                    .Where(o => guidIds.Contains(o.Id) && o.UserId == userId)
+                    .ToList();
 
-            return NoContent();
+                _appDbContext.Orders.RemoveRange(ordersToDelete);
+                _appDbContext.SaveChanges();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Błąd podczas usuwania zleceń: {ex.Message}");
+                return StatusCode(500, "Błąd serwera podczas usuwania zleceń");
+            }
         }
-
-
-    
-
         private Guid GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);

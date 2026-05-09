@@ -11,8 +11,8 @@ export enum OrderPriority {
 }
 
 export enum OrderCategory {
-  EmailCampaing,
-  LinkedinAutomatization,
+  Hardware,
+  Software,
   Other,
 }
 
@@ -41,8 +41,8 @@ export const OrderPriorityNames: { [key in OrderPriority]: string } = {
 };
 
 export const OrderCategoryNames: { [key in OrderCategory]: string } = {
-  [OrderCategory.LinkedinAutomatization]: "Automatyzacja Linkedin",
-  [OrderCategory.EmailCampaing]: "Kampania e-mail",
+  [OrderCategory.Software]: "Software",
+  [OrderCategory.Hardware]: "Hardware",
   [OrderCategory.Other]: "Inne",  
 }
 

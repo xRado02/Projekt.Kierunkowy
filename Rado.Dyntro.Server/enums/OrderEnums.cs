@@ -16,8 +16,8 @@
 
     public enum OrderCategory
     {
-        LinkedinCampaing,
-        LinkedinAutomatization,
+        Software,
+        Hardware,
         Other,
     }
 

@@ -15,7 +15,7 @@ namespace Rado.Dyntro.Server.Services
             var email = new MimeMessage();
             email.From.Add(MailboxAddress.Parse("dyntro.bot@gmail.com"));
             email.To.Add(MailboxAddress.Parse(sendTo));
-            email.Subject = "Set password - Dyntro";
+            email.Subject = "Set password";
             email.Body = new TextPart(TextFormat.Plain) { Text = body };
 
             try
@@ -23,7 +23,7 @@ namespace Rado.Dyntro.Server.Services
                 using var smtp = new SmtpClient();
                 smtp.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
                 smtp.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                smtp.Authenticate("dyntro.bot@gmail.com", "ndkyxceijanxswmo"); // daj do pliku appsettings
+                smtp.Authenticate("dyntro.bot@gmail.com", "ndkyxceijanxswmo"); 
                 smtp.Send(email);
                 smtp.Disconnect(true);
             }
